@@ -1,18 +1,35 @@
+// auth.js 
 // use this to decode a token and get the user's information out of it
-import decode from 'jwt-decode';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
+// import decode from 'jwt-decode';
 
 // create a new class to instantiate for a user
 class AuthService {
+  constructor() {
+    this.client = new ApolloClient({
+      uri: 'http://localhost:3001/graphql',
+      cache: new InMemoryCache(),
+    });
+  }
   // get user data
   getProfile() {
-    return decode(this.getToken());
+    return this.client.query({
+      query: YOUR_USER_QUERY,
+    })
+    .then((response) => {
+      return response.data.user;
+    })
+    .catch((error) => {
+      console.error('Error fetching user data:', error);
+      return null;
+    });
   }
 
   // check if user's logged in
   loggedIn() {
     // Checks if there is a saved token and it's still valid
     const token = this.getToken();
-    return !!token && !this.isTokenExpired(token); // handwaiving here
+    return !!token;
   }
 
   // check if token is expired
